@@ -1,13 +1,17 @@
 var path = require('path');
 var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var xtPlugin = require('extract-text-webpack-plugin');
 var autoprefixer = require('autoprefixer');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var csswring = require('csswring');
 
-module.exports = {
+var bundle = process.env.BUNDLE || 'client';
+
+var cfg = {
   devtool: 'source-map',
+  context: path.join(__dirname, '../src'),
   entry: [
-    './src/index',
+    './' + bundle
   ],
 
   output: {
@@ -36,13 +40,17 @@ module.exports = {
     }),
   ],
 
-  resolve: {
-    extensions: ['', '.jsx', '.js', '.json'],
-    modulesDirectories: ['node_modules', 'src'],
-  },
+  // resolve: {
+  //   extensions: ['', '.jsx', '.js', '.json'],
+  //   modulesDirectories: ['node_modules', 'src'],
+  // },
 
   module: {
-    loaders: [{
+    loaders: [
+    {
+      test: /\.json$/, loader: 'json'
+    },
+    {
       test: /bootstrap\/js\//,
       loader: 'imports?jQuery=jquery',
     }, {
@@ -82,3 +90,29 @@ module.exports = {
     return [autoprefixer({ browsers: ['last 2 versions', 'safari 5', 'ie 9', 'ios 6', 'android 4'] }), csswring];
   },
 };
+
+if (bundle === 'server') {
+  cfg.target = 'node';
+
+  cfg.node = {
+    __filename: false,
+    __dirname: false,
+    console: false
+  };
+
+  cfg.output = {
+    path: path.join(__dirname, '../public'),
+    publicPath: '/',
+    filename: '../server-bundle.js'
+  };
+} else {
+  cfg.target = 'web';
+
+  cfg.output = {
+    path: path.join(__dirname, '../public'),
+    publicPath: '/',
+    filename: 'js/app.js'
+  };
+}
+
+module.exports = cfg;

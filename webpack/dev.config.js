@@ -10,6 +10,7 @@ module.exports = {
     'webpack-hot-middleware/client',
     './src/index',
   ],
+  context: path.join(__dirname, '../src'),
 
   output: {
     filename: 'bundle.js',
@@ -28,6 +29,15 @@ module.exports = {
     new webpack.ProvidePlugin({
       jQuery: 'jquery',
     }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify('production')
+      }
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      compressor: { screw_ie8: true },
+      output: { comments: false }
+    })
   ],
 
   resolve: {
